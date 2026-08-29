@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #E11D48;
+  --color-primary-dark: #BE123C;
+  --color-secondary: #2563EB;
+  --color-navy: #08111F;
+  --color-navy-surface: #0F1B2D;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-background: #F8FAFC;
+  --color-text-main: #0F172A;
+  --color-text-muted: #64748B;
+  --color-border-color: #E2E8F0;
+  
+  --font-manrope: "Manrope", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+:root {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-manrope);
+}
+
+/* Base styles for dark mode if implemented later, default to simple */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* To keep it simple, we use the navy theme on specific areas as requested */
+  }
+}
