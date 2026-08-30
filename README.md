@@ -8,3 +8,4 @@ Machine Learning project for heart disease prediction.
 - Abdullahi Mohamed Ibrahim: Exploratory Data Analysis
 - Bishar Abdi Ali: Data Training & Machine Learning Model
 - Mohamed Da'ar Muhumed: Backend & Frontend Development
+# resume-analyzer
