@@ -3,4 +3,11 @@ uvicorn
 pandas==2.2.3
 scikit-learn==1.6.1
 joblib==1.5.3
-pydantic
+pydantic[email]
+email-validator
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+psycopg[binary]>=3.1.0
+python-dotenv>=1.0.0
+pyjwt>=2.8.0
+pwdlib[argon2]>=0.2.0

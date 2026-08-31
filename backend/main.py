@@ -1,63 +1,44 @@
-from pathlib import Path
-
-import joblib
-import pandas as pd
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from helpers.api_helper import (
-    HeartInputData,
-    prepare_result
-)
+from database import FRONTEND_ORIGIN
+import auth.models  # noqa: F401
+import assessments.models  # noqa: F401
 
-
-# Load the heart-disease model
-project_folder = Path(__file__).resolve().parent.parent
-
-model_path = (
-    project_folder
-    / "models"
-    / "heart_disease_logistic_model.joblib"
-)
-
-model = joblib.load(model_path)
-
-
-# Model input columns
-features = [
-    "age",
-    "trestbps",
-    "chol",
-    "thalach",
-    "oldpeak",
-    "sex",
-    "cp",
-    "fbs",
-    "restecg",
-    "exang",
-    "slope",
-    "ca",
-    "thal"
-]
-
+from auth.routes import router as auth_router
+from assessments.routes import router as assessments_router
+from helpers.api_helper import HeartInputData, run_prediction
 
 # Create the HeartGuard API
 app = FastAPI(
     title="HeartGuard AI API",
-    version="1.0.0"
+    version="1.0.0",
+    description="Heart Disease Risk Intelligence & Authentication API",
 )
-# Allow the Next.js frontend
+
+# Origins for CORS - allow configured origin + localhost on any port
+allowed_origins = [
+    FRONTEND_ORIGIN.rstrip("/"),
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+]
+origins = list(dict.fromkeys(allowed_origins))
+
+# Allow the Next.js frontend with credentials
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-    ],
+    allow_origins=origins,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
+
+# Include Routers
+app.include_router(auth_router)
+app.include_router(assessments_router)
 
 
 @app.get("/")
@@ -73,7 +54,7 @@ def health():
         "status": "online",
         "model_ready": True,
         "model_name": "Logistic Regression",
-        "input_features": 13
+        "input_features": 13,
     }
 
 
@@ -81,20 +62,10 @@ def health():
 def predict_heart_risk(
     heart_data: HeartInputData
 ):
+    """Public guest prediction endpoint (does not persist data)."""
     try:
-        input_df = pd.DataFrame(
-            [heart_data.model_dump()],
-            columns=features
-        )
-
-        prediction = model.predict(input_df)[0]
-        probability = model.predict_proba(input_df)[0]
-
-        return prepare_result(
-            prediction,
-            probability
-        )
-
+        _, _, result = run_prediction(heart_data)
+        return result
     except Exception:
         raise HTTPException(
             status_code=500,

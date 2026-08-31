@@ -2,26 +2,64 @@
 
 import React from "react";
 import Link from "next/link";
-import { Activity, Shield, Brain, ArrowRight, ActivitySquare, CheckCircle2 } from "lucide-react";
+import { Activity, Shield, Brain, ArrowRight, ActivitySquare, LogIn, UserPlus, User } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LandingPage() {
+  const { user } = useAuth();
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col font-sans">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2">
               <Activity className="h-6 w-6 text-primary" />
               <span className="font-manrope font-bold text-xl text-navy">HeartGuard AI</span>
-            </div>
-            <div>
-              <Link 
-                href="/dashboard/assessment"
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark transition-colors"
-              >
-                Start Assessment
-              </Link>
+            </Link>
+            
+            <div className="flex items-center space-x-3">
+              {user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center text-sm font-semibold text-slate-700 hover:text-primary transition-colors px-3 py-2 rounded-lg"
+                  >
+                    <User className="h-4 w-4 mr-1.5 text-slate-500" />
+                    {user.full_name.split(" ")[0]}
+                  </Link>
+                  <Link 
+                    href="/dashboard/assessment"
+                    className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-dark transition-colors"
+                  >
+                    Start Assessment
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center text-sm font-semibold text-slate-700 hover:text-primary transition-colors px-3 py-2 rounded-lg"
+                  >
+                    <LogIn className="h-4 w-4 mr-1.5 text-slate-500" />
+                    Log in
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary-dark transition-colors px-3 py-2 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10"
+                  >
+                    <UserPlus className="h-4 w-4 mr-1.5" />
+                    Create account
+                  </Link>
+                  <Link 
+                    href="/dashboard/assessment"
+                    className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-dark transition-colors"
+                  >
+                    Start Assessment
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -49,14 +87,14 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
                   href="/dashboard/assessment"
-                  className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary hover:bg-primary-dark transition-colors"
+                  className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-primary hover:bg-primary-dark transition-colors"
                 >
                   Start Assessment
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <Link 
                   href="/dashboard"
-                  className="inline-flex items-center justify-center px-6 py-3 border border-slate-700 rounded-md shadow-sm text-base font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors"
+                  className="inline-flex items-center justify-center px-6 py-3 border border-slate-700 rounded-lg shadow-sm text-base font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors"
                 >
                   View Dashboard
                 </Link>
@@ -126,7 +164,7 @@ export default function LandingPage() {
                   <span className="text-2xl font-bold font-manrope">3</span>
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-3">Review Classification</h3>
-                <p className="text-slate-600">Receive a "Lower Risk" or "Higher Risk" classification along with model confidence probabilities.</p>
+                <p className="text-slate-600">Receive a &ldquo;Lower Risk&rdquo; or &ldquo;Higher Risk&rdquo; classification along with model confidence probabilities.</p>
               </div>
             </div>
           </div>

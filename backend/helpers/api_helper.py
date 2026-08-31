@@ -1,6 +1,30 @@
-from typing import Literal
-
+from pathlib import Path
+from typing import Any, Dict, Literal, Tuple
+import joblib
+import pandas as pd
 from pydantic import BaseModel, Field
+
+# Load the heart-disease model
+project_folder = Path(__file__).resolve().parent.parent.parent
+model_path = project_folder / "models" / "heart_disease_logistic_model.joblib"
+model = joblib.load(model_path)
+
+# Model input columns (order matters for the trained scikit-learn model)
+features = [
+    "age",
+    "trestbps",
+    "chol",
+    "thalach",
+    "oldpeak",
+    "sex",
+    "cp",
+    "fbs",
+    "restecg",
+    "exang",
+    "slope",
+    "ca",
+    "thal"
+]
 
 
 class HeartInputData(BaseModel):
@@ -21,7 +45,7 @@ class HeartInputData(BaseModel):
     thal: Literal[3, 6, 7]
 
 
-def prepare_result(prediction, probability):
+def prepare_result(prediction: Any, probability: Any) -> Dict[str, Any]:
     prediction = int(prediction)
 
     lower_risk = round(float(probability[0]), 4)
@@ -51,3 +75,15 @@ def prepare_result(prediction, probability):
             "This is not a medical diagnosis."
         )
     }
+
+
+def run_prediction(heart_data: HeartInputData) -> Tuple[int, Any, Dict[str, Any]]:
+    """Run model inference and return (prediction, probability, prepared_result)."""
+    input_df = pd.DataFrame(
+        [heart_data.model_dump()],
+        columns=features
+    )
+    prediction = model.predict(input_df)[0]
+    probability = model.predict_proba(input_df)[0]
+    result_dict = prepare_result(prediction, probability)
+    return int(prediction), probability, result_dict

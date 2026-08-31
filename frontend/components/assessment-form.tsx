@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { CheckCircle2, AlertCircle } from "lucide-react";
@@ -27,7 +27,22 @@ const schema = z.object({
   }),
 });
 
-type FormData = z.infer<typeof schema>;
+type FormData = {
+  age: number;
+  sex: 0 | 1;
+  trestbps: number;
+  chol: number;
+  fbs: 0 | 1;
+  thalach: number;
+  oldpeak: number;
+  cp: 1 | 2 | 3 | 4;
+  restecg: 0 | 1 | 2;
+  exang: 0 | 1;
+  slope: 1 | 2 | 3;
+  ca: 0 | 1 | 2 | 3;
+  thal: 3 | 6 | 7;
+  consent: boolean;
+};
 
 type SelectionTone = "safe" | "risk";
 
@@ -58,12 +73,11 @@ export function AssessmentForm({ onSubmit, isLoading, onProgressUpdate }: Assess
   const {
     register,
     handleSubmit,
-    control,
     watch,
     formState: { errors, isValid },
     reset,
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     mode: "onChange",
     defaultValues: {
       consent: false,
@@ -73,11 +87,11 @@ export function AssessmentForm({ onSubmit, isLoading, onProgressUpdate }: Assess
   const watchAllFields = watch();
   
   useEffect(() => {
-    const fields = ['age', 'sex', 'trestbps', 'chol', 'fbs', 'thalach', 'oldpeak', 'cp', 'restecg', 'exang', 'slope', 'ca', 'thal'];
+    const fields: (keyof FormData)[] = ['age', 'sex', 'trestbps', 'chol', 'fbs', 'thalach', 'oldpeak', 'cp', 'restecg', 'exang', 'slope', 'ca', 'thal'];
     let completed = 0;
     fields.forEach(field => {
-      const val = watchAllFields[field as keyof FormData];
-      if (val !== undefined && val !== "" && !Number.isNaN(Number(val))) {
+      const val = watchAllFields[field];
+      if (val !== undefined && String(val) !== "" && !Number.isNaN(Number(val))) {
         completed++;
       }
     });
@@ -113,7 +127,7 @@ export function AssessmentForm({ onSubmit, isLoading, onProgressUpdate }: Assess
                   <input 
                     type="radio" 
                     value={opt.value} 
-                    {...register(name)} 
+                    {...register(name as keyof FormData)} 
                     className="sr-only"
                   />
                   <div className={styles}>
@@ -132,13 +146,13 @@ export function AssessmentForm({ onSubmit, isLoading, onProgressUpdate }: Assess
               );
             })}
           </div>
-          {errors[name] && <p className="text-primary text-xs mt-1">{errors[name]?.message}</p>}
+          {errors[name as keyof FormData] && <p className="text-primary text-xs mt-1">{errors[name as keyof FormData]?.message}</p>}
         </div>
       );
     }
     
     const currentValue = watchAllFields[name as keyof FormData] as number;
-    const hasValue = currentValue !== undefined && (currentValue as any) !== "" && !Number.isNaN(Number(currentValue)) && !errors[name];
+    const hasValue = currentValue !== undefined && String(currentValue) !== "" && !Number.isNaN(Number(currentValue)) && !errors[name as keyof FormData];
     const highRiskInput = hasValue ? isHighRisk(name, Number(currentValue)) : false;
     
     let inputStyles = "w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 transition-colors pr-10 ";
@@ -161,7 +175,7 @@ export function AssessmentForm({ onSubmit, isLoading, onProgressUpdate }: Assess
             step={field.step || 1}
             placeholder={`e.g. ${field.min || 0}`}
             className={inputStyles}
-            {...register(name, { valueAsNumber: true })}
+            {...register(name as keyof FormData, { valueAsNumber: true })}
           />
           {hasValue && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -173,7 +187,7 @@ export function AssessmentForm({ onSubmit, isLoading, onProgressUpdate }: Assess
             </div>
           )}
         </div>
-        {errors[name] && <p className="text-primary text-xs mt-1">{errors[name]?.message}</p>}
+        {errors[name as keyof FormData] && <p className="text-primary text-xs mt-1">{errors[name as keyof FormData]?.message}</p>}
       </div>
     );
   };
@@ -187,7 +201,7 @@ export function AssessmentForm({ onSubmit, isLoading, onProgressUpdate }: Assess
             {Object.keys(watchAllFields).filter(k => {
               if (k === 'consent') return false;
               const val = watchAllFields[k as keyof FormData];
-              return val !== undefined && val !== "" && !Number.isNaN(Number(val));
+              return val !== undefined && String(val) !== "" && !Number.isNaN(Number(val));
             }).length}
           </span>
           <span className="text-slate-500">of 13 completed</span>
